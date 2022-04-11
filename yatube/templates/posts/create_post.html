@@ -6,6 +6,7 @@
 <div class="row justify-content-center">
   <div class="col-md-8 p-5">
     <div class="card">
+
       <div class="card-header">
         {% if is_edit %}
           Редактировать запись
@@ -33,7 +34,7 @@
             {% if is_edit %}
             {% url 'posts:post_edit' post.pk %}">
           {% else %}
-            {% url 'posts:post_create' %}">
+            {% url 'posts:post_create' %}
           {% endif %}
           {% csrf_token %}
           {% for field in form %}
@@ -46,7 +47,7 @@
                   </span>
                 {% endif %}
               </label>
-              {{field|addclass:'form-control' }}
+              {{ field|addclass:'form-control' }}
                 {% if field.help_text %}
                   <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
                     {{ field.help_text|safe }}
