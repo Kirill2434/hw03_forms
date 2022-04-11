@@ -1,62 +1,41 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 
+from .utils import super_paginator_xxx
 from .forms import PostForm
-from .models import Group, Post, User
-
-PAGE_NUM = 10
+from .models import User, Group, Post
 
 
 def index(request):
-    posts = Post.objects.all()
-    paginator = Paginator(posts, PAGE_NUM)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {
-        'posts': posts,
-        'page_obj': page_obj,
-    }
-    return render(request, 'posts/index.html', context)
+    posts = super_paginator_xxx(Post.objects.all(), request)
+    return render(request, 'posts/index.html', posts)
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()
-    paginator = Paginator(posts, PAGE_NUM)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
     context = {
         'group': group,
-        'posts': posts,
-        'page_obj': page_obj,
     }
+    context.update(super_paginator_xxx(posts, request))
     return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
-    author = User.objects.get(username=username)
-    post_list = Post.objects.filter(author=author)
-    posts_number = post_list.count()
-    paginator = Paginator(post_list, PAGE_NUM)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    author = get_object_or_404(User, username=username)
+    post_list = author.posts.all().count()
     context = {
         'author': author,
-        'posts_number': posts_number,
-        'page_obj': page_obj,
+        'post_list': post_list,
     }
+    context.update(super_paginator_xxx(author.posts.all(), request))
     return render(request, 'posts/profile.html', context)
 
 
 def post_detail(request, post_id):
-    posts = get_object_or_404(Post, id=post_id)
-    author = posts.author
-    posts_numbers = author.posts.count()
+    post = get_object_or_404(Post, id=post_id)
     context = {
-        'author': author,
-        'posts': posts,
-        'posts_numbers': posts_numbers,
+        'posts': post,
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -64,42 +43,34 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     is_edit = False
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect('posts:profile', username=post.author)
-        return render(request, 'posts/create_post.html', {
-            'form': form, 'is_edit': is_edit
-        }
-        )
-    form = PostForm()
+    form = PostForm(request.POST or None)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.save()
+        return redirect('posts:profile', username=post.author)
     return render(request, 'posts/create_post.html', {
         'form': form, 'is_edit': is_edit
     }
     )
 
 
-@login_required
 def post_edit(request, post_id):
     user = request.user
-    posts = get_object_or_404(Post, pk=post_id)
-    form = PostForm()
+    post = get_object_or_404(Post, pk=post_id)
+    form = PostForm(instance=post)
     is_edit = True
     context = {
-        'posts': posts,
+        'post': post,
         'form': form,
         'is_edit': is_edit
     }
-    if user != posts.author:
-        return redirect('posts:post_detail', posts.pk)
-    if request.method == 'POST':
-        form = PostForm(request.POST, instance=posts)
-        if form.is_valid():
-            posts = form.save(commit=False)
-            posts.author = request.user
-            posts.save()
-            return redirect('posts:post_detail', posts.pk)
+    if user != post.author:
+        return redirect('post:post_detail', post.pk)
+
+    form = PostForm(request.POST or None, instance=post)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.save()
+        return redirect('posts:post_detail', post.pk)
     return render(request, 'posts/create_post.html', context)

@@ -31,7 +31,7 @@
         {% endif %}
             <form method="POST" action="
             {% if is_edit %}
-            {% url 'posts:post_edit' posts.pk %}">
+            {% url 'posts:post_edit' post.pk %}">
           {% else %}
             {% url 'posts:post_create' %}">
           {% endif %}
