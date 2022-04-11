@@ -7,7 +7,7 @@ class PostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['text'].widget.attrs['placeholder'] = (
-            'Введите какой нибудь текст, ну пожалуйста'
+            'Желательно добавить какой нибудь текст'
         )
         self.fields['group'].empty_label = (
             'Выберите группу, если желаете 🙂'
@@ -16,7 +16,10 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('text', 'group')
-        labels = {'text': 'Введите текст', 'group': 'Выберети группу'}
+        labels = {
+            'text': 'Введите текст',
+            'group': 'Выберете группу'
+        }
         help_texts = {
             'text': 'Попробуй ввести текст',
             'group': 'Выбираем только существующие группы'
