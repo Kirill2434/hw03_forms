@@ -7,7 +7,7 @@ class PostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['text'].widget.attrs['placeholder'] = (
-            'Желательно добавить какой нибудь текст'
+            'Напиши текст, пожалуйста'
         )
         self.fields['group'].empty_label = (
             'Выберите группу, если желаете 🙂'
@@ -22,5 +22,5 @@ class PostForm(forms.ModelForm):
         }
         help_texts = {
             'text': 'Попробуй ввести текст',
-            'group': 'Выбираем только существующие группы'
+            'group': 'Выбор за тобой'
         }
