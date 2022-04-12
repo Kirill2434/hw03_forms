@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 {% block title %}
-  Новая запись
+  {% if is_edit %}
+    Редактирование поста
+  {% else %}
+    Новая запись
+  {% endif %}
 {% endblock %}
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-8 p-5">
     <div class="card">
-
       <div class="card-header">
         {% if is_edit %}
           Редактировать запись
@@ -30,14 +33,13 @@
           </div>
           {% endfor %}
         {% endif %}
-            <form method="POST" action="
-            {% if is_edit %}
-            {% url 'posts:post_edit' post.pk %}">
-          {% else %}
-            {% url 'posts:post_create' %}
-          {% endif %}
-          {% csrf_token %}
-          {% for field in form %}
+        {% if is_edit %}
+          <form method="POST" action="{% url 'posts:post_edit' post.pk %}">
+        {% else %}
+          <form method="POST" action="{% url 'posts:post_create' %}">
+        {% endif %}
+        {% csrf_token %}
+            {% for field in form %}
             <div class="form-group row my-3 p-3">
               <label for="{{ field.id_for_label }}">
                 {{ field.label }}
