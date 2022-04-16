@@ -7,6 +7,7 @@ from ..models import Group, Post
 
 User = get_user_model()
 
+NUM_POSTS = 10
 
 class PostViewsTests(TestCase):
     @classmethod
@@ -155,11 +156,11 @@ class PiginatorViewsTest(TestCase):
             slug='test_slug',
             description='Тестовое_описание_2'
         )
-        for i in range(13):
+        for post_text in range(13):
             cls.posts = Post.objects.create(
                 author=cls.user,
                 group=cls.group,
-                text=f'{i} Text'
+                text=f'{post_text} Тестовый текст'
             )
 
     def setUp(self):
@@ -174,7 +175,7 @@ class PiginatorViewsTest(TestCase):
             reverse('posts:profile',
                     kwargs={'username': self.user.username})
         ]
-        for i in range(len(templates)):
-            with self.subTest(templates=templates[i]):
-                response = self.authorized_client.get(templates[i])
-                self.assertEqual(len(response.context['page_obj']), 10)
+        for num in range(len(templates)):
+            with self.subTest(templates=templates[num]):
+                response = self.authorized_client.get(templates[num])
+                self.assertEqual(len(response.context['page_obj']), NUM_POSTS)

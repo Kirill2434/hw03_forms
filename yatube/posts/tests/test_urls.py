@@ -63,9 +63,3 @@ class PostURLTests(TestCase):
         """запрос к несуществующей странице вернёт ошибку 404."""
         response = self.guest_client.get('/group/general/')
         self.assertEqual(response.status_code, 404)
-
-
-
-
-#
-#            '/posts/1/edit/': 'posts/create_post.html'
